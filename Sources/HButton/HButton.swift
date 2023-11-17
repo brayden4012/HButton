@@ -13,7 +13,14 @@ public struct HButton<Label: View>: View {
     private let doubleTapAction: (() -> Void)?
     private let longPressAction: (() -> Void)?
     private let label: Label
-
+    
+    /// Creates an HButton with a single label as its content
+    /// - Parameters:
+    ///   - title: The button title
+    ///   - style: The style of the button
+    ///   - tapAction: Action to be performed when the user taps the button
+    ///   - doubleTapAction: Action to be performed when the user double-taps the button
+    ///   - longPressAction: Action to be performed when the user long presses the button
     public init(
         title: String,
         style: HButtonStyle,
@@ -27,7 +34,14 @@ public struct HButton<Label: View>: View {
         self.doubleTapAction = doubleTapAction
         self.longPressAction = longPressAction
     }
-
+    
+    /// Creates an HButton with a custom View as the button's content
+    /// - Parameters:
+    ///   - style: The style of the button
+    ///   - tapAction: Action to be performed when the user taps the button
+    ///   - doubleTapAction: Action to be performed when the user double-taps the button
+    ///   - longPressAction: Action to be performed when the user long presses the button
+    ///   - label: ViewBuilder for button content
     public init(
         style: HButtonStyle,
         tapAction: @escaping () -> Void,
@@ -43,32 +57,30 @@ public struct HButton<Label: View>: View {
     }
 
     public var body: some View {
-        label
-            .font(style.font)
-            .foregroundColor(style.foregroundColor)
-            .frame(minHeight: style.height)
-            .padding(.horizontal)
-            .background(style.backgroundColor)
-            .cornerRadius(style.cornerRadius)
-            .overlay(
-                RoundedRectangle(
-                    cornerRadius: style.cornerRadius
+        button
+            .buttonStyle(MultipleGestureButtonStyle(doubleTapAction: doubleTapAction, longPressAction: longPressAction))
+    }
+
+    private var button: some View {
+        Button {
+            tapAction()
+        } label: {
+            label
+                .font(style.font)
+                .foregroundColor(style.foregroundColor)
+                .frame(minHeight: style.height)
+                .padding(.horizontal)
+                .background(style.backgroundColor)
+                .cornerRadius(style.cornerRadius)
+                .overlay(
+                    RoundedRectangle(
+                        cornerRadius: style.cornerRadius
+                    )
+                    .stroke(style.borderColor ?? .clear, lineWidth: style.borderWidth)
                 )
-                .stroke(style.borderColor ?? .clear, lineWidth: style.borderWidth)
-            )
-            .onTapGesture(count: 2) {
-                doubleTapAction?()
-            }
-            .onTapGesture {
-                tapAction()
-            }
-            .onLongPressGesture(minimumDuration: 0.25) {
-                longPressAction?()
-            }
+        }
     }
 }
-
-
 
 #Preview {
     HButton(title: "Primary", style: .primary) {
